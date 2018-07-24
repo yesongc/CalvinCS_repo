@@ -1,0 +1,73 @@
+<!--Yesong Choi yc38-->
+<!--connects to mqtt and subscribes to the camera topic-->
+<!doctype html>
+<html>
+	<head>
+		 <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js"
+		type="text/javascript"></script>
+
+		<link rel="stylesheet" type="text/css" href="./css/styles.css">
+
+
+		<title>Yesong CS300</title>
+	</head>
+
+	<body>
+		<header>
+			<h2>CS300 Final Project</h2>
+		</header>
+		<script>
+		clientId = "";
+		// Create MQTT client using websockets
+		client = new Paho.MQTT.Client(/*broker address here*/, 8080, clientId);
+
+		// set callback handlers
+		client.onConnectionLost = onConnectionLost;
+		client.onMessageArrived = onMessageArrived;
+
+		// connect the client
+		client.connect({onSuccess:onConnect});
+
+		// called when the client connects
+		function onConnect() {
+		 // Once connection has been made, subscribe to the camera topic
+ 		 client.subscribe("yc38/camera");
+		 console.log("Connected!");
+		}
+
+		// called when the client loses its connection
+		function onConnectionLost(responseObject) {
+		 if (responseObject.errorCode !== 0) {
+		 console.log("Connection Lost:"+responseObject.errorMessage);
+		 }
+		}
+
+		// called when a message arrives
+		function onMessageArrived(message) {
+		 console.log("Message Arrived");
+		 console.log("Topic: " + message.destinationName);
+		 console.log("QoS: " + message.qos);
+		 if (message.destinationName == 'yc38/camera') {
+		 	//convert the base64 string to an image
+		 	var strImg = message.payloadString;
+		 	var source = 'data:image/jpg;base64,' + strImg;
+
+		 	//create an image element
+		 	var image = document.createElement("img");
+		 	image.src = source;
+		 	//display image in the appropriate element
+		 	document.getElementById("picture").appendChild(image);
+		 }
+		}
+
+		</script>
+
+		<section>
+			<h2>Raspberry Pi motion sensor detected this person</h2>
+			<div id="picture"></div>
+		</section>
+
+
+
+	</body>
+</html>
